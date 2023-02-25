@@ -4,16 +4,16 @@ alias  TypeClass.Property.Generator
 defimpl TypeClass.Property.Generator, for: Algae.Tree.Rose do
   def generate(_) do
     case Enum.random(0..2) do
-      0 -> Rose.new(rose(), forest())
-      _ -> Rose.new(rose())
+      0 -> Rose.mk(rose(), forest())
+      _ -> Rose.mk(rose())
     end
   end
 
   def forest do
     fn ->
       case Enum.random(0..10) do
-        0 -> Rose.new(rose(), forest())
-        _ -> Rose.new(rose())
+        0 -> Rose.mk(rose(), forest())
+        _ -> Rose.mk(rose())
       end
     end
     |> Stream.repeatedly()

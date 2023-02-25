@@ -1,5 +1,4 @@
-alias Algae.Tree.BinarySearch, as: BST
-alias Algae.Tree.BinarySearch.{Empty, Node}
+alias Algae.Tree.BinarySearch.Empty
 
 import TypeClass
 

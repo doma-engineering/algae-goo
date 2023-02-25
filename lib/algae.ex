@@ -158,10 +158,10 @@ defmodule Algae do
     caller_module = __CALLER__.module
 
     case ast do
-      {:none, _, _} = type ->
+      {:none, _, _} = _type ->
         embedded_data_ast()
 
-      {:\\, _, [{:::, _, [module_ctx, type]}, default]} ->
+      {:\\, _, [{:"::", _, [module_ctx, type]}, default]} ->
         caller_module
         |> modules(module_ctx)
         |> data_ast(default, type)
@@ -171,12 +171,12 @@ defmodule Algae do
         |> List.wrap()
         |> embedded_data_ast(default, type)
 
-      {:::, _, [module_ctx, {:none, _, _} = type]} ->
+      {:"::", _, [module_ctx, {:none, _, _} = type]} ->
         caller_module
         |> modules(module_ctx)
         |> data_ast(type)
 
-      {:::, _, [module_ctx, type]} ->
+      {:"::", _, [module_ctx, type]} ->
         caller_module
         |> modules(module_ctx)
         |> data_ast(default_value(type), type)
@@ -201,8 +201,8 @@ defmodule Algae do
     inner =
       body
       |> case do
-           {:__block__, _, lines} -> lines
-           line -> List.wrap(line)
+        {:__block__, _, lines} -> lines
+        line -> List.wrap(line)
       end
       |> data_ast(__CALLER__)
 
@@ -295,7 +295,7 @@ defmodule Algae do
       #   }
 
   """
-  @spec defsum([do: {:__block__, [any()], ast()}]) :: ast()
+  @spec defsum(do: {:__block__, [any()], ast()}) :: ast()
   defmacro defsum(do: {:__block__, _, [first | _] = parts} = block) do
     module_ctx = __CALLER__.module
     types = or_types(parts, module_ctx)
@@ -313,7 +313,7 @@ defmodule Algae do
       @spec new() :: t()
       def new, do: unquote(default_module).new()
 
-      defoverridable [new: 0]
+      defoverridable new: 0
     end
   end
 end

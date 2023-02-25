@@ -8,6 +8,6 @@ definst Witchcraft.Chain, for: Algae.Tree.Rose do
 
     new_forest = mid_forest ++ Functor.map(forest, &Chain.chain(&1, link))
 
-    Rose.new(new_rose, new_forest)
+    Rose.mk(new_rose, new_forest)
   end
 end

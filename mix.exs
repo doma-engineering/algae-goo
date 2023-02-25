@@ -3,7 +3,7 @@ defmodule Algae.Mixfile do
 
   def project do
     [
-      app: :algae,
+      app: :algae_goo,
       aliases: aliases(),
       deps: deps(),
       preferred_cli_env: [quality: :test],
@@ -44,8 +44,13 @@ defmodule Algae.Mixfile do
       {:ex_doc,      "~> 0.23", only: :dev,                 runtime: false},
 
       {:quark,       "~> 2.2"},
-      {:type_class,  "~> 1.2"},
-      {:witchcraft,  "~> 1.0"},
+      # Use type_class-goo from doma-engineering/type_class-goo
+      {:type_class_goo,  github: "doma-engineering/type_class-goo", branch: "main"},
+      #{:type_class_goo,  "~> 1.21"},
+      #{:type_class_goo, path: "../type_class-goo"},
+      # Use witchcraft_goo from github: https://github.com/doma-engineering/witchcraft-goo
+      {:witchcraft_goo,  github: "doma-engineering/witchcraft-goo", branch: "main"},
+      # {:witchcraft_goo, path: "../_witchcraft-goo"},
     ]
   end
 

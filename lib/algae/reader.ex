@@ -34,11 +34,11 @@ defmodule Algae.Reader do
 
   """
 
-  alias  __MODULE__
+  alias __MODULE__
   import Algae
-  use    Witchcraft
+  use Witchcraft
 
-  defdata fun()
+  defdata(fun())
 
   @doc """
   `Reader` constructor.
@@ -127,8 +127,8 @@ defmodule Algae.Reader do
   @spec ask((any() -> any())) :: t()
   def ask(fun) do
     monad %Reader{} do
-      e <- ask
-      return fun.(e)
+      e <- ask()
+      return(fun.(e))
     end
   end
 
@@ -150,8 +150,8 @@ defmodule Algae.Reader do
   @spec local(t(), (any() -> any())) :: any()
   def local(reader, fun) do
     monad %Reader{} do
-      e <- ask
-      return run(reader, fun.(e))
+      e <- ask()
+      return(run(reader, fun.(e)))
     end
   end
 end

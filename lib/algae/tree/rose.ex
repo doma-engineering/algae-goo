@@ -25,14 +25,14 @@ defmodule Algae.Tree.Rose do
 
   """
 
-  alias  __MODULE__
+  alias __MODULE__
   import Algae
 
   @type rose :: any()
   @type forest :: [t()]
 
   defdata do
-    rose    :: any()
+    rose :: any()
     forest :: [t()]
   end
 
@@ -41,22 +41,22 @@ defmodule Algae.Tree.Rose do
 
   ## Examples
 
-      iex> new(42)
+      iex> mk(42)
       %Algae.Tree.Rose{
         rose: 42,
         forest: []
       }
 
   """
-  @spec new(rose()) :: t()
-  def new(rose), do: %Rose{rose: rose, forest: []}
+  @spec mk(rose()) :: t()
+  def mk(rose), do: %Rose{rose: rose, forest: []}
 
   @doc """
   Create an `Algae.Rose` tree, passing a forest and a rose.
 
   ## Examples
 
-      iex> new(42, [new(55), new(14)])
+      iex> mk(42, [mk(55), mk(14)])
       %Algae.Tree.Rose{
         rose: 42,
         forest: [
@@ -66,8 +66,8 @@ defmodule Algae.Tree.Rose do
       }
 
   """
-  @spec new(rose(), forest()) :: t()
-  def new(rose, forest), do: %Rose{rose: rose, forest: forest}
+  @spec mk(rose(), forest()) :: t()
+  def mk(rose, forest), do: %Rose{rose: rose, forest: forest}
 
   @doc """
   Wrap another tree around an existing one, relegating it to the forest.
@@ -75,7 +75,7 @@ defmodule Algae.Tree.Rose do
   ## Examples
 
       iex> 55
-      ...> |> new()
+      ...> |> mk()
       ...> |> layer(42)
       ...> |> layer(99)
       ...> |> layer(6)

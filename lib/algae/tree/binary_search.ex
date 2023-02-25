@@ -108,16 +108,6 @@ defmodule Algae.Tree.BinarySearch do
     end
   end
 
-  def insert(%Empty{}, value), do: new(value)
-
-  def insert(tree = %Node{node: node, left: left, right: right}, orderable) do
-    case compare(orderable, node) do
-      :equal -> tree
-      :greater -> %{tree | right: insert(right, orderable)}
-      :lesser -> %{tree | left: insert(left, orderable)}
-    end
-  end
-
   @doc """
   Remove an element from a tree by value.
 
