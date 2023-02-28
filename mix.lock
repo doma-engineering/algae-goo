@@ -15,9 +15,7 @@
   "makeup_erlang": {:hex, :makeup_erlang, "0.1.1", "3fcb7f09eb9d98dc4d208f49cc955a34218fc41ff6b84df7c75b3e6e533cc65f", [:mix], [{:makeup, "~> 1.0", [hex: :makeup, repo: "hexpm", optional: false]}], "hexpm", "174d0809e98a4ef0b3309256cbf97101c6ec01c4ab0b23e926a9e17df2077cbb"},
   "nimble_parsec": {:hex, :nimble_parsec, "1.2.3", "244836e6e3f1200c7f30cb56733fd808744eca61fd182f731eac4af635cc6d0b", [:mix], [], "hexpm", "c8d789e39b9131acf7b99291e93dae60ab48ef14a7ee9d58c6964f59efb570b0"},
   "operator": {:hex, :operator, "0.2.1", "4572312bbd3e63a5c237bf15c3a7670d568e3651ea744289130780006e70e5f5", [:mix], [], "hexpm", "1990cc6dc651d7fff04636eef06fc64e6bc1da83a1da890c08ca3432e17e267a"},
-  "quark": {:hex, :quark, "2.3.2", "066e0d431440d077684469967f54d732443ea2a48932e0916e974633e8b39c95", [:mix], [], "hexpm", "2f6423779b02afe7e3e4af3cfecfcd94572f2051664d4d8329ffa872d24b10a8"},
-  "type_class": {:hex, :type_class, "1.2.8", "349db84be8c664e119efaae1a09a44b113bc8e81af1d032f4e3e38feef4fac32", [:mix], [{:exceptional, "~> 2.1", [hex: :exceptional, repo: "hexpm", optional: false]}], "hexpm", "bb93de2cacfd6f0ee43f4616f7a139816a73deba4ae8ee3364bcfa4abe3eef3e"},
-  "type_class_goo": {:hex, :type_class_goo, "1.21.1", "9bc2fa78ce3333d823075bacd7acdb6f6d891671ce1afd4041e25121733c54c6", [:mix], [{:exceptional, "~> 2.1", [hex: :exceptional, repo: "hexpm", optional: false]}], "hexpm", "e9efb8aa86ad2f80190880a5366117e5b29f55e8f446c71c3dbbd0ffea12cc1c"},
-  "witchcraft": {:hex, :witchcraft, "1.0.4", "8733ac0ee769d4d2f73610de5a2b601a4ccbe385d1fca6419280f2511d21d0c9", [:mix], [{:exceptional, "~> 2.1", [hex: :exceptional, repo: "hexpm", optional: false]}, {:operator, "~> 0.2", [hex: :operator, repo: "hexpm", optional: false]}, {:quark, "~> 2.2", [hex: :quark, repo: "hexpm", optional: false]}, {:type_class, "~> 1.2", [hex: :type_class, repo: "hexpm", optional: false]}], "hexpm", "a380f439f1962d2e56cdad874ed7eb4612ddd6ec5ee3c6ad0c5d63e60539e6b0"},
-  "witchcraft_goo": {:git, "https://github.com/doma-engineering/witchcraft-goo.git", "81458a2b50c7b2bac7059848ea9fd9c28b60b44f", [branch: "main"]},
+  "quark_goo": {:git, "https://github.com/doma-engineering/quark-goo.git", "1463c313e3b644a26fcd8a12fbf62aa1ad320fee", [branch: "main"]},
+  "type_class_goo": {:git, "https://github.com/doma-engineering/type_class-goo.git", "eea412095e13b399b80dcacc220582c0c93dab65", [branch: "main"]},
+  "witchcraft_goo": {:git, "https://github.com/doma-engineering/witchcraft-goo.git", "e86072d9d87e5f677239a1ef369b2c8c801ed2f5", [branch: "main"]},
 }

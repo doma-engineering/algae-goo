@@ -43,14 +43,9 @@ defmodule Algae.Mixfile do
       {:earmark,     "~> 1.4",  only: :dev,                 runtime: false},
       {:ex_doc,      "~> 0.23", only: :dev,                 runtime: false},
 
-      {:quark,       "~> 2.2"},
-      # Use type_class-goo from doma-engineering/type_class-goo
+      {:quark_goo,       github: "doma-engineering/quark-goo",      branch: "main"},
       {:type_class_goo,  github: "doma-engineering/type_class-goo", branch: "main"},
-      #{:type_class_goo,  "~> 1.21"},
-      #{:type_class_goo, path: "../type_class-goo"},
-      # Use witchcraft_goo from github: https://github.com/doma-engineering/witchcraft-goo
       {:witchcraft_goo,  github: "doma-engineering/witchcraft-goo", branch: "main"},
-      # {:witchcraft_goo, path: "../_witchcraft-goo"},
     ]
   end
 
