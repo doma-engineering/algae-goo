@@ -4,6 +4,7 @@ defmodule Algae do
   """
 
   import Algae.Internal
+  import Algae.InternalDefault
 
   @type ast() :: {atom(), any(), any()}
 
@@ -214,6 +215,68 @@ defmodule Algae do
   end
 
   @doc """
+  Version of product type that doesn't generate `new`.  
+  """
+  defmacro defprod(ast) do
+    caller_module = __CALLER__.module
+
+    case ast do
+      {:none, _, _} = _type ->
+        embedded_data_ast_default()
+
+      {:\\, _, [{:"::", _, [module_ctx, type]}, default]} ->
+        caller_module
+        |> modules(module_ctx)
+        |> data_ast_default(default, type)
+
+      {:\\, _, [type, default]} ->
+        caller_module
+        |> List.wrap()
+        |> embedded_data_ast_default(default, type)
+
+      {:"::", _, [module_ctx, {:none, _, _} = type]} ->
+        caller_module
+        |> modules(module_ctx)
+        |> data_ast_default(type)
+
+      {:"::", _, [module_ctx, type]} ->
+        caller_module
+        |> modules(module_ctx)
+        |> data_ast_default(default_value(type), type)
+
+      {_, _, _} = type ->
+        data_ast_default(caller_module, type)
+
+      [do: {:__block__, _, lines}] ->
+        data_ast_default(lines, __CALLER__)
+
+      [do: line] ->
+        data_ast_default([line], __CALLER__)
+    end
+  end
+
+  defmacro defprod(module_ctx, do: body) do
+    module_name =
+      __CALLER__.module
+      |> modules(module_ctx)
+      |> Module.concat()
+
+    inner =
+      body
+      |> case do
+        {:__block__, _, lines} -> lines
+        line -> List.wrap(line)
+      end
+      |> data_ast_default(__CALLER__)
+
+    quote do
+      defmodule unquote(module_name) do
+        unquote(inner)
+      end
+    end
+  end
+
+  @doc """
   Build a sum (coproduct) type from product types
 
       defmodule Light do
@@ -316,4 +379,30 @@ defmodule Algae do
       defoverridable new: 0
     end
   end
+
+  @doc """
+  This is a version of `defsum` which removes "new" mess, instead, using default version for the submodules.
+  """
+  @spec defunion(do: {:__block__, [any()], ast()}) :: ast()
+  defmacro defunion(do: {:__block__, _, [first | _] = parts} = block) do
+    module_ctx = __CALLER__.module
+    types = or_types_default(parts, module_ctx)
+
+    default_module =
+      module_ctx
+      |> List.wrap()
+      |> Kernel.++(submodule_name_default(first))
+      |> Module.concat()
+
+    quote do
+      @type t :: unquote(types)
+      unquote(block)
+
+      @spec new() :: t()
+      def new, do: unquote(default_module).new()
+
+      defoverridable new: 0
+    end
+  end
+
 end

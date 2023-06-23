@@ -1,4 +1,4 @@
-defmodule Algae.Internal do
+defmodule Algae.InternalDefault do
   @moduledoc false
 
   @type ast() :: {atom(), any(), any()}
@@ -6,22 +6,9 @@ defmodule Algae.Internal do
   @doc """
   Construct a data type AST
   """
-  @spec data_ast(module(), Macro.Env.t() | [module()], ast()) :: ast()
-  def data_ast(lines, %{aliases: _} = caller) when is_list(lines) do
-    {field_values, field_types, specs, args, defaults} = module_elements(lines, caller)
-
-    arg_count = Enum.count(args)
-
-    overridables =
-      Enum.map(0..arg_count, &{:new_partial, &1}) ++
-        [new: arg_count]
-
-    # More verbose, but clearer.
-    # for arity <- 0..Enum.count(args) do
-    #   {:new, arity}
-    # end
-
-    args_without_defaults = Enum.map(args, fn {:\\, [], [stripped, _]} -> stripped end)
+  @spec data_ast_default(module(), Macro.Env.t() | [module()], ast()) :: ast()
+  def data_ast_default(lines, %{aliases: _} = caller) when is_list(lines) do
+    {field_values, field_types, _specs, _args, defaults} = module_elements(lines, caller)
 
     quote do
       use Quark
@@ -29,21 +16,15 @@ defmodule Algae.Internal do
       @type t :: %__MODULE__{unquote_splicing(field_types)}
       defstruct unquote(field_values)
 
-      defpartial new_partial(unquote_splicing(args_without_defaults)) do
-        struct(__MODULE__, unquote(defaults))
-      end
-
       @doc "Positional constructor, with args in the same order as they were defined in"
-      @spec new(unquote_splicing(specs)) :: t()
-      def new(unquote_splicing(args)) do
+      @spec default() :: t()
+      def default() do
         struct(__MODULE__, unquote(defaults))
       end
-
-      defoverridable unquote(overridables)
     end
   end
 
-  def data_ast(modules, {:none, _, _}) do
+  def data_ast_default(modules, {:none, _, _}) do
     full_module = modules |> List.wrap() |> Module.concat()
 
     quote do
@@ -53,15 +34,13 @@ defmodule Algae.Internal do
         defstruct []
 
         @doc "Default #{__MODULE__} struct"
-        @spec new() :: t()
-        def new, do: struct(__MODULE__)
-
-        defoverridable new: 0
+        @spec default() :: t()
+        def default, do: struct(__MODULE__)
       end
     end
   end
 
-  def data_ast(caller_module, type) do
+  def data_ast_default(caller_module, type) do
     default = default_value(type)
     field = module_to_field(caller_module)
 
@@ -73,19 +52,13 @@ defmodule Algae.Internal do
       defstruct [{unquote(field), unquote(default)}]
 
       @doc "Default #{__MODULE__} struct"
-      @spec new() :: t()
-      def new, do: struct(__MODULE__)
-
-      @doc "Constructor helper for piping"
-      @spec new(unquote(type)) :: t()
-      def new(x), do: struct(__MODULE__, [unquote(field), x])
-
-      defoverridable new: 0, new: 1
+      @spec default() :: t()
+      def default, do: struct(__MODULE__)
     end
   end
 
-  @spec data_ast([module()], any(), ast()) :: ast()
-  def data_ast(name, default, type_ctx) do
+  @spec data_ast_default([module()], any(), ast()) :: ast()
+  def data_ast_default(name, default, type_ctx) do
     full_module = Module.concat(name)
     field = module_to_field(name)
 
@@ -98,29 +71,25 @@ defmodule Algae.Internal do
         defstruct [{unquote(field), unquote(default)}]
 
         @doc "Default #{__MODULE__} struct. Value defaults to #{inspect(unquote(default))}."
-        @spec new() :: t()
-        def new, do: struct(__MODULE__)
-
-        @doc "Helper for initializing struct with a specific value"
-        @spec new(unquote(type_ctx)) :: t()
-        def new(value), do: struct(__MODULE__, [{unquote(field), value}])
+        @spec default() :: t()
+        def default, do: struct(__MODULE__)
       end
     end
   end
 
-  @spec embedded_data_ast() :: ast()
-  def embedded_data_ast do
+  @spec embedded_data_ast_default() :: ast()
+  def embedded_data_ast_default do
     quote do
       @type t :: %__MODULE__{}
       defstruct []
 
       @doc "Default #{__MODULE__} struct"
-      @spec new() :: t()
-      def new, do: struct(__MODULE__)
+      @spec default() :: t()
+      def default, do: struct(__MODULE__)
     end
   end
 
-  def embedded_data_ast(module_ctx, default, type_ctx) do
+  def embedded_data_ast_default(module_ctx, default, type_ctx) do
     field = module_to_field(module_ctx)
 
     quote do
@@ -131,10 +100,8 @@ defmodule Algae.Internal do
       defstruct [{unquote(field), unquote(default)}]
 
       @doc "Default #{__MODULE__} struct"
-      @spec new(unquote(type_ctx)) :: t()
-      def new(field \\ unquote(default)), do: struct(__MODULE__, [field])
-
-      defoverridable new: 1
+      @spec default() :: t()
+      def default(), do: struct(__MODULE__, [unquote(default)])
     end
   end
 
@@ -189,29 +156,26 @@ defmodule Algae.Internal do
 
   def resolve_alias(a, _), do: a
 
-  @spec or_types([ast()], module()) :: [ast()]
-  def or_types({:\\, _, [{:"::", _, [_, types]}, _]}, module_ctx) do
-    or_types(types, module_ctx)
+  @spec or_types_default([ast()], module()) :: [ast()]
+  def or_types_default({:\\, _, [{:"::", _, [_, types]}, _]}, module_ctx) do
+    or_types_default(types, module_ctx)
   end
 
-  def or_types([head | tail], module_ctx) do
-    Enum.reduce(tail, call_type(head, module_ctx), fn module, acc ->
-      {:|, [], [call_type(module, module_ctx), acc]}
+  def or_types_default([head | tail], module_ctx) do
+    Enum.reduce(tail, call_type_default(head, module_ctx), fn module, acc ->
+      {:|, [], [call_type_default(module, module_ctx), acc]}
     end)
-  end
+  end  
 
-  @spec modules(module(), [module()]) :: [module()]
-  def modules(top, module_ctx), do: [top | extract_name(module_ctx)]
-
-  @spec call_type(module(), [module()]) :: ast()
-  def call_type(new_module, module_ctx) do
-    full_module = List.wrap(module_ctx) ++ submodule_name(new_module)
+  @spec call_type_default(module(), [module()]) :: ast()
+  def call_type_default(new_module, module_ctx) do
+    full_module = List.wrap(module_ctx) ++ submodule_name_default(new_module)
     {{:., [], [{:__aliases__, [alias: false], full_module}, :t]}, [], []}
   end
 
-  @spec submodule_name({:defdata, any(), [{:"::", any(), [any()]}]}) ::
+  @spec submodule_name_default({:defprod, any(), [{:"::", any(), [any()]}]}) ::
           [module()]
-  def submodule_name({:defdata, _, [{:"::", _, [body, _]}]}) do
+  def submodule_name_default({:defprod, _, [{:"::", _, [body, _]}]}) do
     body
     |> case do
       {:\\, _, [inner_module_ctx, _]} -> inner_module_ctx
@@ -221,11 +185,11 @@ defmodule Algae.Internal do
     |> List.wrap()
   end
 
-  def submodule_name({:defdata, _, [{:\\, _, [{:"::", _, [{:__aliases__, _, module}, _]}, _]}]}) do
+  def submodule_name_default({:defprod, _, [{:\\, _, [{:"::", _, [{:__aliases__, _, module}, _]}, _]}]}) do
     List.wrap(module)
   end
 
-  def submodule_name({:defdata, _, [{:__aliases__, _, module}, _]}) do
+  def submodule_name_default({:defprod, _, [{:__aliases__, _, module}, _]}) do
     List.wrap(module)
   end
 
@@ -250,20 +214,20 @@ defmodule Algae.Internal do
   end
 
   # credo:disable-for-lines:21 Credo.Check.Refactor.CyclomaticComplexity
-  def default_value({{:., _, [{_, _, [:String]}, :t]}, _, _}), do: ""
-  def default_value({{:., _, [String, :t]}, _, _}), do: ""
+  defp default_value({{:., _, [{_, _, [:String]}, :t]}, _, _}), do: ""
+  defp default_value({{:., _, [String, :t]}, _, _}), do: ""
 
-  def default_value({{:., _, [{_, _, adt}, :t]}, _, []}) do
-    quote do: unquote(Module.concat(adt)).new()
+  defp default_value({{:., _, [{_, _, adt}, :t]}, _, []}) do
+    quote do: unquote(Module.concat(adt)).default()
   end
 
-  def default_value({{:., _, [module, :t]}, _, []}) do
-    quote do: unquote(module).new()
+  defp default_value({{:., _, [module, :t]}, _, []}) do
+    quote do: unquote(module).default()
   end
 
-  def default_value([_]), do: []
+  defp default_value([_]), do: []
 
-  def default_value({type, _, _}) do
+  defp default_value({type, _, _}) do
     type
     |> case do
       :boolean -> false
