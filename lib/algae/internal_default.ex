@@ -8,7 +8,7 @@ defmodule Algae.InternalDefault do
   """
   @spec data_ast_default(module(), Macro.Env.t() | [module()], ast()) :: ast()
   def data_ast_default(lines, %{aliases: _} = caller) when is_list(lines) do
-    {field_values, field_types, _specs, _args, defaults} = module_elements(lines, caller)
+    {field_values, field_types, _specs, _args, _defaults} = module_elements(lines, caller)
 
     quote do
       use Quark
@@ -16,11 +16,12 @@ defmodule Algae.InternalDefault do
       @type t :: %__MODULE__{unquote_splicing(field_types)}
       defstruct unquote(field_values)
 
-      @doc "Positional constructor, with args in the same order as they were defined in"
-      @spec default() :: t()
-      def default() do
-        struct(__MODULE__, unquote(defaults))
-      end
+      ## It seems to be impossible to cleanly generalise defaults. It should be Monoid or a separate "Default" typeclass.
+      # @doc "Positional constructor, with args in the same order as they were defined in"
+      # @spec default() :: t()
+      # def default() do
+      # struct(__MODULE__, unquote(defaults))
+      # end
     end
   end
 
@@ -120,15 +121,15 @@ defmodule Algae.InternalDefault do
     List.foldr(lines, {[], [], [], [], []}, fn line,
                                                {value_acc, type_acc, typespec_acc, acc_arg,
                                                 acc_mapping} ->
-      {field, type, default_value} = normalize_elements(line, caller)
+      {field, type, _default_value} = normalize_elements(line, caller)
 
       arg = {field, [], Elixir}
 
       {
-        [{field, default_value} | value_acc],
+        [{field, nil} | value_acc],
         [{field, type} | type_acc],
         [type | typespec_acc],
-        [{:\\, [], [arg, default_value]} | acc_arg],
+        [{:\\, [], [arg, nil]} | acc_arg],
         [{field, arg} | acc_mapping]
       }
     end)
@@ -165,7 +166,7 @@ defmodule Algae.InternalDefault do
     Enum.reduce(tail, call_type_default(head, module_ctx), fn module, acc ->
       {:|, [], [call_type_default(module, module_ctx), acc]}
     end)
-  end  
+  end
 
   @spec call_type_default(module(), [module()]) :: ast()
   def call_type_default(new_module, module_ctx) do
@@ -185,7 +186,9 @@ defmodule Algae.InternalDefault do
     |> List.wrap()
   end
 
-  def submodule_name_default({:defprod, _, [{:\\, _, [{:"::", _, [{:__aliases__, _, module}, _]}, _]}]}) do
+  def submodule_name_default(
+        {:defprod, _, [{:\\, _, [{:"::", _, [{:__aliases__, _, module}, _]}, _]}]}
+      ) do
     List.wrap(module)
   end
 
