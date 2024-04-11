@@ -184,8 +184,8 @@ defmodule Algae.InternalDefault do
   end
 
   def or_types_default([head | tail], module_ctx) do
-    Enum.reduce(tail, call_type_default(head, module_ctx)
-      {:|, [], [call_type_default(module, module_ctx) 
+    Enum.reduce(tail, call_type_default(head, module_ctx), fn module, acc ->
+      {:|, [], [call_type_default(module, module_ctx), acc]}
     end)
   end
 
@@ -241,11 +241,11 @@ defmodule Algae.InternalDefault do
   defp default_value({{:., _, [{_, _, [:String]}, :t]}, _, _}), do: ""
   defp default_value({{:., _, [String, :t]}, _, _}), do: ""
 
-  defp default_value({{:., _, [{_, _, adt}, :t]}, _, []}) do
+  defp default_value({{:., _, [{_, _, _adt}, :t]}, _, []}) do
     quote do: nil
   end
 
-  defp default_value({{:., _, [module, :t]}, _, []}) do
+  defp default_value({{:., _, [_module, :t]}, _, []}) do
     quote do: nil
   end
 
