@@ -4,7 +4,28 @@ defmodule Algae.InternalDefault do
   @type ast() :: {atom(), any(), any()}
 
   @doc """
-  Construct a data type AST
+  Construct a data type AST.
+
+  We temporarily stop supporting default values for data types:
+
+  ```
+  Thu Apr 11 20:51:43:548195700 sweater@conflagrate ~/github/uptight (main) 
+  λ mix test
+  Compiling 7 files (.ex)
+  [encoded: {:encoded, [], Elixir}, raw: {:raw, [], Elixir}]
+  warning: variable "encoded" does not exist and is being expanded to "encoded()", please use parentheses to remove the ambiguity or change the variable name
+    lib/uptight/text/urlencoded.ex:15: Uptight.Text.Urlencoded.default/0
+
+  warning: variable "raw" does not exist and is being expanded to "raw()", please use parentheses to remove the ambiguity or change the variable name
+    lib/uptight/text/urlencoded.ex:15: Uptight.Text.Urlencoded.default/0
+
+  warning: undefined function raw/0 (expected Uptight.Text.Urlencoded to define such a function or for it to be imported, but none are available)
+    lib/uptight/text/urlencoded.ex:15
+
+
+  == Compilation error in file lib/uptight/text/urlencoded.ex ==
+  ** (CompileError) lib/uptight/text/urlencoded.ex:15: undefined function encoded/0 (expected Uptight.Text.Urlencoded to define such a function or for it to be imported, but none are available)
+  ```
   """
   @spec data_ast_default(module(), Macro.Env.t() | [module()], ast()) :: ast()
   def data_ast_default(lines, %{aliases: _} = caller) when is_list(lines) do
@@ -91,7 +112,7 @@ defmodule Algae.InternalDefault do
   end
 
   def embedded_data_ast_default(module_ctx, default, type_ctx) do
-    field = module_to_field(module_ctx)
+    field = module_to_field(module_ctx) 
 
     quote do
       @type t :: %__MODULE__{
@@ -163,8 +184,8 @@ defmodule Algae.InternalDefault do
   end
 
   def or_types_default([head | tail], module_ctx) do
-    Enum.reduce(tail, call_type_default(head, module_ctx), fn module, acc ->
-      {:|, [], [call_type_default(module, module_ctx), acc]}
+    Enum.reduce(tail, call_type_default(head, module_ctx)
+      {:|, [], [call_type_default(module, module_ctx) 
     end)
   end
 
@@ -221,11 +242,11 @@ defmodule Algae.InternalDefault do
   defp default_value({{:., _, [String, :t]}, _, _}), do: ""
 
   defp default_value({{:., _, [{_, _, adt}, :t]}, _, []}) do
-    quote do: unquote(Module.concat(adt)).default()
+    quote do: nil
   end
 
   defp default_value({{:., _, [module, :t]}, _, []}) do
-    quote do: unquote(module).default()
+    quote do: nil
   end
 
   defp default_value([_]), do: []

@@ -9,7 +9,7 @@ defmodule Algae.Mixfile do
       preferred_cli_env: [quality: :test],
 
       # Versions
-      version: "1.3.1",
+      version: "1.3.2",
       elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
 

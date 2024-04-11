@@ -388,20 +388,9 @@ defmodule Algae do
     module_ctx = __CALLER__.module
     types = or_types_default(parts, module_ctx)
 
-    default_module =
-      module_ctx
-      |> List.wrap()
-      |> Kernel.++(submodule_name_default(first))
-      |> Module.concat()
-
     quote do
       @type t :: unquote(types)
       unquote(block)
-
-      @spec new() :: t()
-      def new, do: unquote(default_module).new()
-
-      defoverridable new: 0
     end
   end
 
