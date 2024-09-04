@@ -384,7 +384,7 @@ defmodule Algae do
   This is a version of `defsum` which removes "new" mess, instead, using default version for the submodules.
   """
   @spec defunion(do: {:__block__, [any()], ast()}) :: ast()
-  defmacro defunion(do: {:__block__, _, [first | _] = parts} = block) do
+  defmacro defunion(do: {:__block__, _, [_first | _] = parts} = block) do
     module_ctx = __CALLER__.module
     types = or_types_default(parts, module_ctx)
 
